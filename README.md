@@ -18,3 +18,7 @@ Communicate with Flexit CS60 (e.g. UNI2) controller unit using a standard RS485 
 - Stop bits: 1
 - Protocol: RS485 UART proprietary protocol (not Modbus!)
 
+<h4> Suggested communication equipment: </h4>
+
+- Standard RS485-USB cable (e.g. USB-RS485-WE-1800-BT)
+- Elfin EW11 (RS485 - WiFi). This unit allows for a very elegant installation since the RJ12 connector also provides power supply. Works nicely with all default settings (all you have to set is WiFi SSID / key).
