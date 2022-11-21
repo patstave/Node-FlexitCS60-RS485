@@ -22,3 +22,5 @@ Communicate with Flexit CS60 (e.g. UNI2) controller unit using a standard RS485 
 
 - Standard RS485-USB cable (e.g. USB-RS485-WE-1800-BT)
 - Elfin EW11 (RS485 - WiFi). This unit allows for a very elegant installation since the RJ12 connector also provides power supply. Works nicely with all default settings (all you have to set is WiFi SSID / key).
+
+The CS60 main control board (located behind a small metal door on the left side in UNI2 unit) provides two RJ12 connectors. One is likely already occupied by your CI60 / CI600 control panel. Connect your serial interface to the other connector. 
