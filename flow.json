@@ -1,0 +1,1318 @@
+[
+    {
+        "id": "21bced5bd1b229d0",
+        "type": "tab",
+        "label": "RS485",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "b8d40adc6ed47b35",
+        "type": "serial in",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "serial": "f7eaafadec8e8436",
+        "x": 150,
+        "y": 320,
+        "wires": [
+            [
+                "8673d61556de4747"
+            ]
+        ]
+    },
+    {
+        "id": "8673d61556de4747",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "Primary parsing",
+        "func": "const header = [...msg.payload].slice(0, 4);\nvar serialBuffer = [...msg.payload];\nserialBuffer.splice(0,2);\n\nvar bufferSize = serialBuffer.length;\n\nvar topic\n\n//Identify the message type\nif (header[0] == 0 && header[1] == 16 && bufferSize == 177) {\n  topic = \"FlexitCI50_StateReport\";\n\n} else if (header[0] == 2 && header[1] == 1 && bufferSize == 56) {\n  topic = \"FlexitCI50_x1\";\n} else if (header[0] == 0 && header[1] == 6 && header[2] == 1 && header[3] == 81) {\n  topic = \"FlexitCI50_x2\";\n} else if (header[0] == 0 && header[1] == 6 && header[2] == 1 && header[3] == 93) {\n  topic = \"FlexitCI50_x3\";\n} else if (header[0] == 0 && header[1] == 6 && header[2] == 1 && header[3] == 95 && bufferSize == 185) {\n  topic = \"FlexitCI50_x4\";\n} else if (header[0] == 170 && header[1] == 0 ) {\n  topic = \"FlexitCI50_x5\";\n} else if (header[0] == 2 && header[1] == 15) {\n  topic = \"FlexitCI50_x6\";\n} else {\n  topic = undefined;\n}\n\nvar output = {\n  payload: serialBuffer\n  ,topic: topic\n  ,header: header\n  , bufferSize : bufferSize\n}\nreturn output;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 320,
+        "wires": [
+            [
+                "36cd689aedc6210c"
+            ]
+        ]
+    },
+    {
+        "id": "36cd689aedc6210c",
+        "type": "switch",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "FlexitCI50_StateReport",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "FlexitCI50_x1",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "FlexitCI50_x2",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "FlexitCI50_x3",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "FlexitCI50_x4",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "FlexitCI50_x5",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "FlexitCI50_x6",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "undefined",
+                "vt": "jsonata"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 8,
+        "x": 510,
+        "y": 320,
+        "wires": [
+            [
+                "983fe597eee46005",
+                "e4128552ce2e50ea",
+                "a33f309f1392dc3f"
+            ],
+            [
+                "8eb6609a59293362"
+            ],
+            [
+                "c177c41ff1f089ad"
+            ],
+            [
+                "38ab8bdd70995870"
+            ],
+            [
+                "a641a142776fe68c"
+            ],
+            [
+                "385a8e3934f913f1"
+            ],
+            [
+                "8fad386635b90804"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "983fe597eee46005",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "Build structure",
+        "func": "const buffer = msg.payload\n\n//msg.buffer = buffer;\n\nmsg = {};\nmsg.payload = {\n    regulationFanSpeed_idx8 : buffer[8]\n    , buf1: buffer[1]\n    , buf3: buffer[3]\n    , buf4: buffer[4]\n    , extractAurTemperature_buf6: (buffer[6]/10.0)\n    , buf9: buffer[9]\n    , buf10: buffer[10]\n    , buf14: buffer[14]\n    , supplyAirTemperature_idx16 : (buffer[16]/10.0)\n    , buf17: buffer[17]\n    , buf18: buffer[18]\n    , errorState_idx19: buffer[19]\n    , outdoorAirTemperature_idx20: (buffer[20]/10.0)\n    , buf21: buffer[21]\n    , buf22: buffer[22]\n    , unknown_Percentage_idx26: buffer[26]\n    , heaterPercent_idx28 : buffer[28]\n    , heatExchangerSpeed_idx30: buffer[30]\n    , buf31: buffer[31]\n    , buf32: buffer[32]\n    , buf136: buffer[136]\n    , heaterEnabled_idx166: !!buffer[166]\n    , unknownBinary_idx168: buffer[168]\n    , unknownBinary_idx170: buffer[170]\n};\n\nmsg.topic = 'FlexitCI60_BufferData';\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 260,
+        "wires": [
+            [
+                "0c4f0c2f38d3bfb0"
+            ]
+        ]
+    },
+    {
+        "id": "0c4f0c2f38d3bfb0",
+        "type": "rbe",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 890,
+        "y": 260,
+        "wires": [
+            [
+                "3a2bc4beeb722b77",
+                "3ea0f9cf0831b4d9"
+            ]
+        ]
+    },
+    {
+        "id": "e4128552ce2e50ea",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "ChangedEntries",
+        "func": "var oldMsg = context.get(\"oldMsg\") ?? msg;\nvar changedItems = [];\n\n// Loop through all new values and all old values, check if entry differs\nfor (var i = 0; i < msg.payload.length; i++) {\n    var newVal = msg.payload[i];\n    var oldVal = oldMsg.payload[i];\n\n    // If the entry differs, push the entry to a list\n    if (newVal != oldVal && (i != 8 && i != 26 && i != 28 && i != 166) && oldVal != undefined) { \n        var entry = {index : i, oldValue : oldVal, newValue : newVal}\n        changedItems.push(entry);\n    }\n\n}\n\ncontext.set(\"oldMsg\", msg)\nreturn changedItems;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cbd02ac69098ca98",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "ChangedEntry_single",
+        "func": "var oldMsg = context.get(\"oldMsg\") ?? msg;\nvar changedItems = [];\n\n// Loop through all new values and all old values, check if entry differs\nfor (var i = 0; i < msg.payload.length; i++) {\n    var newVal = msg.payload[i];\n    var oldVal = oldMsg.payload[i];\n\n    // If the entry differs, push the entry to a list\n    if (newVal != oldVal && (i = 19) && oldVal != undefined) { \n        var entry = {index : i, oldValue : oldVal, newValue : newVal}\n        changedItems.push(entry);\n    }\n\n}\n\ncontext.set(\"oldMsg\", msg)\nreturn changedItems;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3a2bc4beeb722b77",
+        "type": "tableify",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "before": "Formatted",
+        "after": "",
+        "tableStyle": "",
+        "theadStyle": "",
+        "tbodyStyle": "",
+        "trStyle": "",
+        "tdStyle": "",
+        "x": 1040,
+        "y": 220,
+        "wires": [
+            [
+                "34e81b480d837143"
+            ]
+        ]
+    },
+    {
+        "id": "34e81b480d837143",
+        "type": "ui_template",
+        "z": "21bced5bd1b229d0",
+        "group": "4ab70ce89fbfa7c0",
+        "name": "Formatted",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1190,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4c9d0a80f293f633",
+        "type": "tableify",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "before": "Raw",
+        "after": "",
+        "tableStyle": "",
+        "theadStyle": "",
+        "tbodyStyle": "",
+        "trStyle": "",
+        "tdStyle": "",
+        "x": 1040,
+        "y": 180,
+        "wires": [
+            [
+                "9d10b97b24f25a04"
+            ]
+        ]
+    },
+    {
+        "id": "9d10b97b24f25a04",
+        "type": "ui_template",
+        "z": "21bced5bd1b229d0",
+        "group": "4ab70ce89fbfa7c0",
+        "name": "Raw",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1170,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a33f309f1392dc3f",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "Table",
+        "func": "var dict = {};\n\nfor (var i = 0; i < msg.payload.length; i++) {\n    dict[i.toString()] = msg.payload[i];\n}\n\nmsg = {payload : dict}\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 180,
+        "wires": [
+            [
+                "4c9d0a80f293f633"
+            ]
+        ]
+    },
+    {
+        "id": "47aa9ef4cbfe8883",
+        "type": "tableify",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "before": "x1",
+        "after": "",
+        "tableStyle": "",
+        "theadStyle": "",
+        "tbodyStyle": "",
+        "trStyle": "",
+        "tdStyle": "",
+        "x": 860,
+        "y": 380,
+        "wires": [
+            [
+                "4b3446bb92f59ac8"
+            ]
+        ]
+    },
+    {
+        "id": "4b3446bb92f59ac8",
+        "type": "ui_template",
+        "z": "21bced5bd1b229d0",
+        "group": "4ab70ce89fbfa7c0",
+        "name": "Raw",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1010,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8eb6609a59293362",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "function 3",
+        "func": "var dict = {};\n\nfor (var i = 0; i < msg.payload.length; i++) {\n    dict[i.toString()] = msg.payload[i];\n}\n\nmsg = {payload : dict}\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 380,
+        "wires": [
+            [
+                "47aa9ef4cbfe8883"
+            ]
+        ]
+    },
+    {
+        "id": "8c7c4f94c2f1e356",
+        "type": "tableify",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "before": "x2",
+        "after": "",
+        "tableStyle": "",
+        "theadStyle": "",
+        "tbodyStyle": "",
+        "trStyle": "",
+        "tdStyle": "",
+        "x": 860,
+        "y": 420,
+        "wires": [
+            [
+                "90e1c95ee37e4d35"
+            ]
+        ]
+    },
+    {
+        "id": "90e1c95ee37e4d35",
+        "type": "ui_template",
+        "z": "21bced5bd1b229d0",
+        "group": "4ab70ce89fbfa7c0",
+        "name": "Raw",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1010,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c177c41ff1f089ad",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "function 4",
+        "func": "var dict = {};\n\nfor (var i = 0; i < msg.payload.length; i++) {\n    dict[i.toString()] = msg.payload[i];\n}\n\nmsg = {payload : dict}\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 420,
+        "wires": [
+            [
+                "8c7c4f94c2f1e356"
+            ]
+        ]
+    },
+    {
+        "id": "5f61f4c9f592a91b",
+        "type": "tableify",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "before": "x3",
+        "after": "",
+        "tableStyle": "",
+        "theadStyle": "",
+        "tbodyStyle": "",
+        "trStyle": "",
+        "tdStyle": "",
+        "x": 860,
+        "y": 460,
+        "wires": [
+            [
+                "92b8b242f4fbb76c"
+            ]
+        ]
+    },
+    {
+        "id": "92b8b242f4fbb76c",
+        "type": "ui_template",
+        "z": "21bced5bd1b229d0",
+        "group": "4ab70ce89fbfa7c0",
+        "name": "Raw",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1010,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "38ab8bdd70995870",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "function 5",
+        "func": "var dict = {};\n\nfor (var i = 0; i < msg.payload.length; i++) {\n    dict[i.toString()] = msg.payload[i];\n}\n\nmsg = {payload : dict}\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 460,
+        "wires": [
+            [
+                "5f61f4c9f592a91b"
+            ]
+        ]
+    },
+    {
+        "id": "f5971d5be88cbb6e",
+        "type": "tableify",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "before": "x4",
+        "after": "",
+        "tableStyle": "",
+        "theadStyle": "",
+        "tbodyStyle": "",
+        "trStyle": "",
+        "tdStyle": "",
+        "x": 860,
+        "y": 500,
+        "wires": [
+            [
+                "8eeacbc616cf760a"
+            ]
+        ]
+    },
+    {
+        "id": "8eeacbc616cf760a",
+        "type": "ui_template",
+        "z": "21bced5bd1b229d0",
+        "group": "4ab70ce89fbfa7c0",
+        "name": "Raw",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1010,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a641a142776fe68c",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "function 6",
+        "func": "var dict = {};\n\nfor (var i = 0; i < msg.payload.length; i++) {\n    dict[i.toString()] = msg.payload[i];\n}\n\nmsg = {payload : dict}\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 500,
+        "wires": [
+            [
+                "f5971d5be88cbb6e"
+            ]
+        ]
+    },
+    {
+        "id": "1acd429c48575dd6",
+        "type": "tableify",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "before": "x5",
+        "after": "",
+        "tableStyle": "",
+        "theadStyle": "",
+        "tbodyStyle": "",
+        "trStyle": "",
+        "tdStyle": "",
+        "x": 860,
+        "y": 540,
+        "wires": [
+            [
+                "62a77ae0c4e6c9e6"
+            ]
+        ]
+    },
+    {
+        "id": "62a77ae0c4e6c9e6",
+        "type": "ui_template",
+        "z": "21bced5bd1b229d0",
+        "group": "4ab70ce89fbfa7c0",
+        "name": "Raw",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1010,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "385a8e3934f913f1",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "function 7",
+        "func": "var dict = {};\n\nfor (var i = 0; i < msg.payload.length; i++) {\n    dict[i.toString()] = msg.payload[i];\n}\n\nmsg = {payload : dict}\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 540,
+        "wires": [
+            [
+                "1acd429c48575dd6"
+            ]
+        ]
+    },
+    {
+        "id": "ff5ad293acf94106",
+        "type": "tableify",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "before": "x6",
+        "after": "",
+        "tableStyle": "",
+        "theadStyle": "",
+        "tbodyStyle": "",
+        "trStyle": "",
+        "tdStyle": "",
+        "x": 860,
+        "y": 580,
+        "wires": [
+            [
+                "27476433350d8d4b"
+            ]
+        ]
+    },
+    {
+        "id": "27476433350d8d4b",
+        "type": "ui_template",
+        "z": "21bced5bd1b229d0",
+        "group": "4ab70ce89fbfa7c0",
+        "name": "Raw",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1010,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8fad386635b90804",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "function 8",
+        "func": "var dict = {};\n\nfor (var i = 0; i < msg.payload.length; i++) {\n    dict[i.toString()] = msg.payload[i];\n}\n\nmsg = {payload : dict}\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 580,
+        "wires": [
+            [
+                "ff5ad293acf94106"
+            ]
+        ]
+    },
+    {
+        "id": "d866c709a5d0b7fa",
+        "type": "ha-sensor",
+        "z": "21bced5bd1b229d0",
+        "name": "Supply air temperature",
+        "entityConfig": "1343280cf379fe36",
+        "version": 0,
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 2000,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3ea0f9cf0831b4d9",
+        "type": "split",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "topic",
+        "x": 1370,
+        "y": 260,
+        "wires": [
+            [
+                "698a84b6ecc26ecb"
+            ]
+        ]
+    },
+    {
+        "id": "698a84b6ecc26ecb",
+        "type": "switch",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "supplyAirTemperature_idx16",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "outdoorAirTemperature_idx20",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "heaterPercent_idx28",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "heaterEnabled_idx166",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "regulationFanSpeed_idx8",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "heatExchangerSpeed_idx30",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "extractAurTemperature_buf6",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 7,
+        "x": 1490,
+        "y": 260,
+        "wires": [
+            [
+                "d866c709a5d0b7fa"
+            ],
+            [
+                "c4a4ea5cc1fe0439"
+            ],
+            [
+                "60d53ddf3c9c3aec"
+            ],
+            [
+                "e1a55dcaff61fcb7"
+            ],
+            [
+                "800601aced55cb81",
+                "1a22fa7829a3b2cb"
+            ],
+            [
+                "999bb644683872b8"
+            ],
+            [
+                "36ad039d02f95a7e"
+            ]
+        ]
+    },
+    {
+        "id": "c4a4ea5cc1fe0439",
+        "type": "ha-sensor",
+        "z": "21bced5bd1b229d0",
+        "name": "Outdoor air temperature",
+        "entityConfig": "e4d3107bec1cbfee",
+        "version": 0,
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 2010,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "60d53ddf3c9c3aec",
+        "type": "ha-sensor",
+        "z": "21bced5bd1b229d0",
+        "name": "Heater percent",
+        "entityConfig": "ed71795e7fb276c8",
+        "version": 0,
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 1980,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "800601aced55cb81",
+        "type": "change",
+        "z": "21bced5bd1b229d0",
+        "name": "Scale regulation fan speed",
+        "rules": [
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "0",
+                "fromt": "num",
+                "to": "0",
+                "tot": "num"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "1",
+                "fromt": "num",
+                "to": "33",
+                "tot": "num"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "2",
+                "fromt": "num",
+                "to": "66",
+                "tot": "num"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "3",
+                "fromt": "num",
+                "to": "100",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1720,
+        "y": 460,
+        "wires": [
+            [
+                "2dc8aa84a54d8dca"
+            ]
+        ]
+    },
+    {
+        "id": "2dc8aa84a54d8dca",
+        "type": "ha-sensor",
+        "z": "21bced5bd1b229d0",
+        "name": "Regulation fan speed",
+        "entityConfig": "dba7c971859884f2",
+        "version": 0,
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 2000,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "92be03709d5b0a10",
+        "type": "ha-update-config",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "server": "e3253fea.d1ed7",
+        "entityConfig": "dba7c971859884f2",
+        "version": 0,
+        "outputProperties": [],
+        "x": 1980,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1a22fa7829a3b2cb",
+        "type": "function",
+        "z": "21bced5bd1b229d0",
+        "name": "Set fan icon",
+        "func": "var state = msg.payload\nvar icon;\n\nswitch (state) {\n    case 0:\n        icon = 'mdi:fan-off'\n        break;\n    case 1:\n        icon = 'mdi:fan-speed-1'\n        break;\n    case 2:\n        icon = 'mdi:fan-speed-2'\n        break;\n    case 3:\n        icon = 'mdi:fan-speed-3'\n        break;\n    default:\n        icon = 'mdi:fan'\n}\n\nmsg = {\n    payload: {state, icon: icon }\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1670,
+        "y": 500,
+        "wires": [
+            [
+                "92be03709d5b0a10"
+            ]
+        ]
+    },
+    {
+        "id": "e1a55dcaff61fcb7",
+        "type": "ha-binary-sensor",
+        "z": "21bced5bd1b229d0",
+        "name": "Heater enabled",
+        "entityConfig": "feb48d6012713759",
+        "version": 0,
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 1980,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "999bb644683872b8",
+        "type": "ha-sensor",
+        "z": "21bced5bd1b229d0",
+        "name": "Heat exchanger speed",
+        "entityConfig": "886866d4f6a73a94",
+        "version": 0,
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 2000,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "36ad039d02f95a7e",
+        "type": "ha-sensor",
+        "z": "21bced5bd1b229d0",
+        "name": "Extract air temperature",
+        "entityConfig": "091fd3fd565a568f",
+        "version": 0,
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 2000,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0f746e684eb0a098",
+        "type": "tcp in",
+        "z": "21bced5bd1b229d0",
+        "name": "",
+        "server": "client",
+        "host": "192.168.1.210",
+        "port": "8899",
+        "datamode": "stream",
+        "datatype": "buffer",
+        "newline": "",
+        "topic": "",
+        "trim": false,
+        "base64": false,
+        "tls": "",
+        "x": 180,
+        "y": 380,
+        "wires": [
+            [
+                "8673d61556de4747"
+            ]
+        ]
+    },
+    {
+        "id": "06980af7210b7175",
+        "type": "comment",
+        "z": "21bced5bd1b229d0",
+        "name": "Comment",
+        "info": "Choose USB or ethernet connection. You need to change UID / IP-adress to mathch your setup.",
+        "x": 140,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "f01ec972eec76572",
+        "type": "comment",
+        "z": "21bced5bd1b229d0",
+        "name": "Comment",
+        "info": "Build a table in Node dashboard for debugging purposes (you can remove this)",
+        "x": 720,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "33b5c25ac59c0bf3",
+        "type": "comment",
+        "z": "21bced5bd1b229d0",
+        "name": "Comment",
+        "info": "Here Node pushes the output to Home Assistant entities. You can modify this and use the data however you want.",
+        "x": 1960,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "f7eaafadec8e8436",
+        "type": "serial-port",
+        "serialport": "/dev/ttyUSB0",
+        "serialbaud": "115200",
+        "databits": "8",
+        "parity": "none",
+        "stopbits": "1",
+        "waitfor": "",
+        "dtr": "none",
+        "rts": "none",
+        "cts": "none",
+        "dsr": "none",
+        "newline": "1",
+        "bin": "bin",
+        "out": "time",
+        "addchar": "",
+        "responsetimeout": "10000"
+    },
+    {
+        "id": "4ab70ce89fbfa7c0",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "6e10f4b13c6150b0",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1343280cf379fe36",
+        "type": "ha-entity-config",
+        "server": "e3253fea.d1ed7",
+        "deviceConfig": "2ab34a43f5e26507",
+        "name": "Supply air temperature",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Tilluftstemperatur"
+            },
+            {
+                "property": "icon",
+                "value": "mdi:thermometer-plus"
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": "temperature"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "°C"
+            },
+            {
+                "property": "state_class",
+                "value": "measurement"
+            }
+        ],
+        "resend": false
+    },
+    {
+        "id": "e4d3107bec1cbfee",
+        "type": "ha-entity-config",
+        "server": "e3253fea.d1ed7",
+        "deviceConfig": "2ab34a43f5e26507",
+        "name": "Outdoor air temperature",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Utelufttemperatur"
+            },
+            {
+                "property": "icon",
+                "value": "mdi:sun-thermometer-outline"
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": "temperature"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "°C"
+            },
+            {
+                "property": "state_class",
+                "value": "measurement"
+            }
+        ],
+        "resend": false
+    },
+    {
+        "id": "ed71795e7fb276c8",
+        "type": "ha-entity-config",
+        "server": "e3253fea.d1ed7",
+        "deviceConfig": "2ab34a43f5e26507",
+        "name": "Heater percent",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Varmepådrag"
+            },
+            {
+                "property": "icon",
+                "value": "mdi:heating-coil"
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "%"
+            },
+            {
+                "property": "state_class",
+                "value": "measurement"
+            }
+        ],
+        "resend": false
+    },
+    {
+        "id": "dba7c971859884f2",
+        "type": "ha-entity-config",
+        "server": "e3253fea.d1ed7",
+        "deviceConfig": "2ab34a43f5e26507",
+        "name": "Regulation fan speed",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Viftehastighet"
+            },
+            {
+                "property": "icon",
+                "value": "mdi:fan"
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "%"
+            },
+            {
+                "property": "state_class",
+                "value": "measurement"
+            }
+        ],
+        "resend": false
+    },
+    {
+        "id": "e3253fea.d1ed7",
+        "type": "server",
+        "name": "Home Assistant",
+        "addon": true
+    },
+    {
+        "id": "feb48d6012713759",
+        "type": "ha-entity-config",
+        "server": "e3253fea.d1ed7",
+        "deviceConfig": "2ab34a43f5e26507",
+        "name": "Heater Enabled",
+        "version": "6",
+        "entityType": "binary_sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Varmebatteristatus"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": "running"
+            }
+        ],
+        "resend": false
+    },
+    {
+        "id": "886866d4f6a73a94",
+        "type": "ha-entity-config",
+        "server": "e3253fea.d1ed7",
+        "deviceConfig": "2ab34a43f5e26507",
+        "name": "Heat exchanger speed",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Hastighet varmeveksler"
+            },
+            {
+                "property": "icon",
+                "value": "mdi:axis-z-rotate-clockwise"
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "%"
+            },
+            {
+                "property": "state_class",
+                "value": "measurement"
+            }
+        ],
+        "resend": false
+    },
+    {
+        "id": "091fd3fd565a568f",
+        "type": "ha-entity-config",
+        "server": "e3253fea.d1ed7",
+        "deviceConfig": "2ab34a43f5e26507",
+        "name": "ExtractAirTemperature",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Avtrekkstemperatur"
+            },
+            {
+                "property": "icon",
+                "value": "mdi:thermometer-minus"
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": "temperature"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "°C"
+            },
+            {
+                "property": "state_class",
+                "value": "measurement"
+            }
+        ],
+        "resend": false
+    },
+    {
+        "id": "6e10f4b13c6150b0",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "2ab34a43f5e26507",
+        "type": "ha-device-config",
+        "name": "HVAC Uni2",
+        "hwVersion": "",
+        "manufacturer": "Flexit",
+        "model": "CS60",
+        "swVersion": ""
+    }
+]
