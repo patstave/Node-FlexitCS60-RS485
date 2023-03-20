@@ -24,3 +24,14 @@ Communicate with Flexit CS60 (e.g. UNI2) controller unit using a standard RS485 
 - Elfin EW11 (RS485 - WiFi). This unit allows for a very elegant installation since the RJ12 connector also provides power supply. Works nicely with all default settings (all you have to set is WiFi SSID / key).
 
 The CS60 main control board (located behind a small metal door on the left side in UNI2 unit) provides two RJ12 connectors. One is likely already occupied by your CI60 / CI600 control panel. Connect your serial interface to the other connector. 
+
+<h4> Serial debugging (windows): </h4>
+To set up a debugging environment, you first need to create a virtual serial port.
+A virtual serial port can be created with "Electronic Team Serial To Ethernet Connector":
+Create a new "client connection"
+Protocol -> Raw.
+Hostname -> IP-adress of EW11 device server.
+Port -> 8899.
+COM -> Virtual COM-port ID of your choice.
+
+Once your virtual COM-port is setup you can debug the data in the tool of your choice. I suggest the software "Device Monitoring Studio".
